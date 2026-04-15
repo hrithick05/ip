@@ -55,7 +55,7 @@ export default function CodingPage() {
         .eq("clerk_user_id", userId)
         .eq("status", "Correct");
 
-      const ids = new Set((data ?? []).map((item) => item.question_id as string));
+      const ids = new Set((data ?? []).map((item) => (item as { question_id: string }).question_id));
       setCompletedIds(ids);
     }
 
