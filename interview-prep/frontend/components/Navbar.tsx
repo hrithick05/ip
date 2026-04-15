@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Bell, Menu, X, Zap } from "lucide-react";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Menu, User, X, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/lib/store";
 
 const links = [
   { href: "/", label: "Home" },
@@ -19,7 +19,27 @@ const links = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { user, token, clearAuth, setAuth } = useAppStore();
+
+  // Rehydrate user from token on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem("auth_token");
+    if (storedToken && !user) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+        .then((r) => r.json())
+        .then((u) => { if (u?.id) setAuth(u, storedToken); })
+        .catch(() => {});
+    }
+  }, []);
+
+  function logout() {
+    clearAuth();
+    router.push("/");
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#0F0F13]/85 backdrop-blur-2xl">
@@ -35,7 +55,7 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-6 text-sm md:flex">
           {links.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+            const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
             return (
               <Link key={link.href} href={link.href} className={`relative transition ${active ? "text-[#F1F0FF]" : "text-[#9B99B8] hover:text-white"}`}>
                 {link.label}
@@ -46,22 +66,25 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Show when="signed-in">
-            <button className="focus-ring rounded-xl border border-white/10 p-2 text-[#9B99B8] hover:text-white">
-              <Bell className="h-4 w-4" />
-            </button>
-            <UserButton />
-          </Show>
-          <Show when="signed-out">
-            <SignInButton>
-              <button className="focus-ring rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-[#F1F0FF] transition hover:bg-white/5">
-                Sign In
+          {token ? (
+            <>
+              <span className="flex items-center gap-1.5 text-sm text-[#9B99B8]">
+                <User className="h-4 w-4" /> {user?.name ?? "User"}
+              </span>
+              <button onClick={logout} className="focus-ring flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-sm text-[#9B99B8] hover:text-white transition">
+                <LogOut className="h-4 w-4" /> Sign Out
               </button>
-            </SignInButton>
-            <SignUpButton>
-              <button className="focus-ring button-primary px-4 py-2 text-sm">Get Started</button>
-            </SignUpButton>
-          </Show>
+            </>
+          ) : (
+            <>
+              <Link href="/sign-in" className="focus-ring rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-[#F1F0FF] transition hover:bg-white/5">
+                Sign In
+              </Link>
+              <Link href="/sign-up" className="focus-ring button-primary px-4 py-2 text-sm">
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="focus-ring rounded-xl border border-white/10 p-2 text-[#F1F0FF] md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Toggle Menu">
@@ -79,6 +102,11 @@ export function Navbar() {
                 </Link>
               </motion.div>
             ))}
+            {token ? (
+              <button onClick={logout} className="rounded-2xl border border-white/10 px-4 py-3 text-left text-rose-400">Sign Out</button>
+            ) : (
+              <Link href="/sign-in" onClick={() => setOpen(false)} className="block rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-indigo-300">Sign In</Link>
+            )}
           </div>
         </motion.div>
       ) : null}

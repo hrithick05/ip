@@ -1,5 +1,13 @@
 create extension if not exists pgcrypto;
 
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  email text unique not null,
+  password text not null,
+  name text,
+  created_at timestamptz default now()
+);
+
 create table if not exists coding_questions (
   id uuid primary key default gen_random_uuid(),
   title text not null,

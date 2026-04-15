@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAppStore } from "@/lib/store";
 import { QuestionCard } from "@/components/QuestionCard";
 import { supabase } from "@/lib/supabase";
 import { Search } from "lucide-react";
@@ -16,7 +16,7 @@ type CodingQuestion = {
 };
 
 export default function CodingPage() {
-  const { userId } = useAuth();
+  const user = useAppStore((s) => s.user);
   const [questions, setQuestions] = useState<CodingQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
@@ -48,11 +48,11 @@ export default function CodingPage() {
 
   useEffect(() => {
     async function loadSubmissions() {
-      if (!userId) return;
+      if (!user) return;
       const { data } = await supabase
         .from("submissions")
         .select("question_id, status")
-        .eq("clerk_user_id", userId)
+        .eq("clerk_user_id", user.id)
         .eq("status", "Correct");
 
       const ids = new Set((data ?? []).map((item) => (item as { question_id: string }).question_id));
@@ -60,7 +60,7 @@ export default function CodingPage() {
     }
 
     loadSubmissions();
-  }, [userId]);
+  }, [user]);
 
   const filtered = useMemo(() => {
     const normalizedSearch = search.toLowerCase();
