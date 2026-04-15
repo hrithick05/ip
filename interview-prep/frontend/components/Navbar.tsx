@@ -50,7 +50,7 @@ export function Navbar() {
             <button className="focus-ring rounded-xl border border-white/10 p-2 text-[#9B99B8] hover:text-white">
               <Bell className="h-4 w-4" />
             </button>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </Show>
           <Show when="signed-out">
             <SignInButton>
