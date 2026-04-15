@@ -12,7 +12,17 @@ import adminRoutes from "./routes/admin.js";
 const app = express();
 const SECRET = process.env.JWT_SECRET || "interviewprep_secret_2025";
 
-app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = [
+      process.env.FRONTEND_URL,
+      "http://localhost:3000"
+    ].filter(Boolean);
+    if (!origin || allowed.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
