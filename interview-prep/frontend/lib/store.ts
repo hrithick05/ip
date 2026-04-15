@@ -32,10 +32,12 @@ export const useAppStore = create<AppState>((set) => ({
   ],
   setAuth: (user, token) => {
     localStorage.setItem("auth_token", token);
+    document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`;
     set({ user, token });
   },
   clearAuth: () => {
     localStorage.removeItem("auth_token");
+    document.cookie = "auth_token=; path=/; max-age=0";
     set({ user: null, token: null });
   },
   addActivity: (item) =>
