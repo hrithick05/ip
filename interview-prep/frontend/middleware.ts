@@ -1,17 +1,15 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublic = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/admin(.*)"]);
-const hasValidClerkKey =
-  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-  !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes("replace_me");
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!hasValidClerkKey) {
-    return;
-  }
-
-  if (!isPublic(req)) {
-    await auth.protect();
+  try {
+    if (!isPublic(req)) {
+      await auth.protect();
+    }
+  } catch {
+    return NextResponse.next();
   }
 });
 
