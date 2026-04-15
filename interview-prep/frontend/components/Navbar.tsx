@@ -9,7 +9,6 @@ import { useAppStore } from "@/lib/store";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/coding", label: "Coding" },
   { href: "/mock-interview", label: "Mock" },
   { href: "/hr", label: "HR" },

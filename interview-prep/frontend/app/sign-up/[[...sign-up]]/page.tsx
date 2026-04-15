@@ -30,7 +30,7 @@ export default function SignUpPage() {
       if (!res.ok) { toast.error(data.error || "Registration failed"); return; }
       setAuth(data.user, data.token);
       toast.success("Account created!");
-      router.push("/dashboard");
+      router.push("/coding");
     } catch {
       toast.error("Could not connect to server");
     } finally {

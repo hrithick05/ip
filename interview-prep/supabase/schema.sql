@@ -7,7 +7,6 @@ create table if not exists users (
   name text,
   created_at timestamptz default now()
 );
-
 create table if not exists coding_questions (
   id uuid primary key default gen_random_uuid(),
   title text not null,

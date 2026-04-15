@@ -29,7 +29,7 @@ export default function SignInPage() {
       if (!res.ok) { toast.error(data.error || "Login failed"); return; }
       setAuth(data.user, data.token);
       toast.success("Welcome back!");
-      router.push("/dashboard");
+      router.push("/coding");
     } catch {
       toast.error("Could not connect to server");
     } finally {
